@@ -1,0 +1,9 @@
+package com.signify.exception;
+
+public class CourseNotFoundException extends Exception{
+	public CourseNotFoundException() 
+	{
+		System.out.println(" Course Not Found");
+	}
+
+}
