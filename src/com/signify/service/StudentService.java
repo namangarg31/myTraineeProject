@@ -23,32 +23,26 @@ import com.signify.dao.StudentDAOInterface;
  */
 public class StudentService implements StudentInterface {
 
-	
-	 static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-	 static final String DB_URL = "jdbc:mysql://localhost/src";
-
-	   //  Database credentials
-	 static final String USER = "root";
-	 static final String PASS = "shinamangarg2001";
-	
-	
-	
 	StudentDAOInterface studentDao = new StudentDAOImplementation();
 	public void registerForStudent(String name,String password,String branch,int batch)
 	{
 		studentDao.registerDAOStudent(name,password,branch, batch);
 	}
-	public void payFee(String mode)
-	{
-		System.out.println("Fee has been paid through "+mode+" mode");
-	}
 	public void viewGradeCard()
 	{
 		System.out.println("Currently no grade cards are available");
 	}
-	public void semReg(int studid,int sem,String doj,int c1id,int c2id,int c3id,int c4id,int al1id,int al2id)
+	public boolean isVacant(int c1id)
 	{
-		studentDao.semDAORegister(studid,sem,doj,c1id,c2id,c3id,c4id,al1id,al2id);
+		return studentDao.isDAOVacant(c1id);
+	}
+	public boolean isSemRegister(int sem,int id)
+	{
+		return studentDao.isSemDAORegister(sem,id);
+	}
+	public void semReg(int studid,int sem,String doj,int cid[])
+	{
+		studentDao.semDAORegister(studid,sem,doj,cid);
 	}
 	public void viewCatalog()
 	{

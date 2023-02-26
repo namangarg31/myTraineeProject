@@ -4,12 +4,14 @@ import com.signify.bean.Student;
 
 public interface StudentDAOInterface {
 
-//	public boolean registerDAOStudent(Student student);
+
 	 public void registerDAOStudent(String name,String password,String branch,int batch);
 	 public void viewDAOCourses();
 	 public void viewDAOInfo(int id);
 	 public void viewDAOCatalog();
-	 public void semDAORegister(int studid,int sem,String doj,int c1id,int c2id,int c3id,int c4id,int al1id,int al2id);
+	 public boolean isDAOVacant(int cid);
+	 public void semDAORegister(int studid,int sem,String doj,int cid[]);
+	 public boolean isSemDAORegister(int sem,int id);
 	 public void addDAOCourse(int studid,int cid);
 	 public void dropDAOCourse(int studid,int cid);
 	 public void myDAOCatalog(int studid);

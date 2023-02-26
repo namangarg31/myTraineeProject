@@ -16,9 +16,6 @@ import com.signify.dao.AdminDAOInterface;
 public class AdminService implements AdminInterface{
 	
 	AdminDAOInterface ad = new AdminDAOImplementation();
-	public void assignCourse() {
-		System.out.println("Course is assigned");
-	}
 	public boolean viewUnapproveStudents()
 	{
 		return ad.viewDAOUnapprove();
@@ -27,7 +24,8 @@ public class AdminService implements AdminInterface{
 	
 		ad.approveDAOStudent(id); 
 	}
-	public void addAdmin(String name,String pass) {
+	public void addAdmin(String name,String pass) 
+	{
 		ad.addDAOAdmin(name,pass);
 	}
 	public void viewInfo(int id,int val)
@@ -49,10 +47,6 @@ public class AdminService implements AdminInterface{
 	public void addProfessor(String name,String pass,String depart,String des)
 	{
 		ad.addDAOProfessor(name,pass,depart,des);
-	}
-	public void editUser(int id,int val)
-	{
-		return;
 	}
 	public void generateReport(int studid)
 	{

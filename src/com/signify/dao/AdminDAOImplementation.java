@@ -586,7 +586,7 @@ public class AdminDAOImplementation implements AdminDAOInterface{
 			   
 //		      conn = DriverManager.getConnection(DB_URL,USER,PASS);
 		   
-		      String q = "select * from grade";
+		      String q = "select * from grade where studid="+studid;
 		      stmt = conn.prepareStatement(q);
 		      ResultSet rs = stmt.executeQuery(q);
 		      System.out.printf("---------------------------------------------------------------------------------------------%n");

@@ -47,21 +47,53 @@ public class CRSStudentMenu {
 				   case 1:     
 				            System.out.println("Semester you want to register in :");
 				            int sem = sc.nextInt();
-				            String doj = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-				            student.viewCatalog();
-				            System.out.println("Enter the course1 id you want register in :");
-				            int c1id = sc.nextInt();
-				            System.out.println("Enter the course2 id you want register in :");
-				            int c2id = sc.nextInt();
-				            System.out.println("Enter the course3 id you want register in :");
-				            int c3id = sc.nextInt();
-				            System.out.println("Enter the course4 id you want register in :");
-				            int c4id = sc.nextInt();
-				            System.out.println("Enter the alternate1 id you want register in :");
-				            int al1id = sc.nextInt();
-				            System.out.println("Enter the alternate2 id you want register in :");
-				            int al2id = sc.nextInt();
-				            student.semReg(ID, sem, doj, c1id, c2id, c3id, c4id, al1id, al2id);
+				            if(student.isSemRegister(sem,ID))
+				            {
+				            	System.out.println("You have already registered to this semester....");
+				            }
+				            else
+				            {
+				            	String doj = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+					            student.viewCatalog();
+					            int[] courseid = new int[6];
+					            for(int i=1;i<=4;i++)
+					            {
+					            	boolean mark = true;
+					            	while(mark)
+					            	{
+					            		System.out.println("Enter the course "+i+" you want register in :");
+							            int courseID = sc.nextInt();
+							            if(student.isVacant(courseID))
+							            {
+							            	courseid[i-1] = courseID;
+							            	mark = false;
+							            }
+							            else
+							            {
+							            	System.out.println("Course is already filled....Renter the course ID");
+							            }
+					            	}
+					            }				            
+					            for(int i=1;i<=2;i++)
+					            {
+					            	boolean mark = true;
+					            	while(mark)
+					            	{
+					            		System.out.println("Enter the alternate course "+i+"you want register in :");
+							            int courseID = sc.nextInt();
+							            if(student.isVacant(courseID))
+							            {
+							            	courseid[i+3] = courseID;
+							            	mark = false;
+							            }
+							            else
+							            {
+							            	System.out.println("Course is already filled....Renter the course ID");
+							            }
+					            	}
+					            }	
+					            student.semReg(ID, sem, doj, courseid);
+				            }
 				            break;
 				   case 2:  student.viewCatalog();  
 		                    System.out.println("Enter courseID to add :");
@@ -117,7 +149,8 @@ public class CRSStudentMenu {
 			            	    	student.payFeeOnline(ID,semm,pay_choice,amount,cardType,bankName,cardNumber,cardName,cvv,expiry);
 			            	    	break;
 			            	    case 2:
-			            	    	System.out.println("Welcome to offline mode of payment");
+			            	    	System.out.println("WELCOME TO OFFLINE MODE OF PAYMENT");
+			            	    	System.out.println("=================================");
 			            	    	System.out.println("Enter amount to be paid : ");
 			            	    	int amountt = sc.nextInt();
 			            	    	while(amountt!=total_fees[0])

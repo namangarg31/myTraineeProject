@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import com.signify.exception.*;
 import com.signify.utils.DBUtils;
 /**
- * @author asus
+ * @author Naman
  *
  */
 public class UserDAOImplementation implements UserDAOInterface {

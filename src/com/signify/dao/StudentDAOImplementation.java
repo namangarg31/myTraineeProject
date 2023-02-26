@@ -16,14 +16,6 @@ import com.signify.utils.DBUtils;
 public class StudentDAOImplementation implements StudentDAOInterface{
 	
 	
-
-//	 static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-//	 static final String DB_URL = "jdbc:mysql://localhost/src";
-//
-//	   //  Database credentials
-//	 static final String USER = "root";
-//	 static final String PASS = "shinamangarg2001";
-	
 	 Connection conn = DBUtils.getConnection();
 	 PreparedStatement stmt = null;
 	 PreparedStatement stmt2 = null;
@@ -33,20 +25,8 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 		   
 		   try{
 			   
-			   // Step 3 Register Driver here and create connection 
 			   
-			   //Class.forName("com.mysql.cj.jdbc.Driver");
-
-			   // Step 4 make/open  a connection 
-			   
-			      System.out.println("Connecting to database...");
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			   
-			      //STEP 4: Execute a query
-			      
-			//      String sql="insert into user(name,password,roleid) values(?,?,?)";
-			      
-			      
+			      System.out.println("Connecting to database...");			      
 			      stmt = conn.prepareStatement(SQLConstants.USER_INSERT);
 			      stmt.setString(1,name);
 			      stmt.setString(2,password);
@@ -54,17 +34,13 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			      
 			      stmt.executeUpdate();
 			      stmt.close();
-			      //Fetch user id 
 			      String sql2="select id from src.user where name='"+name+"' and password='"+password+"'";
 			      
 			 
 			      stmt2 = conn.prepareStatement(sql2);
 			      ResultSet rs = stmt2.executeQuery(sql2);
 			      int studid = 0;
-
-			      //STEP 5: Extract data from result set
 			      while(rs.next()){
-			         //Retrieve id
 			    	 studid = rs.getInt("id");
 			         
 			      }
@@ -77,10 +53,6 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			      stmt3.setInt(4,batch);
 			      stmt3.setInt(5,0);
 			      stmt3.executeUpdate();
-			      //STEP 6: Clean-up environment
-			     // rs.close();
-		
-//			      conn.close();
 			      System.out.println("Student is registered successfully.....");
 			      System.out.println("Your user id is : "+studid);
 			      System.out.println("Pending Approval, Contact Admin");
@@ -108,23 +80,9 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 		    
 		  
 		   try{
-			   
-			   // Step 3 Register Driver here and create connection 
-			   
-			   //Class.forName("com.mysql.cj.jdbc.Driver");
-
-			   // Step 4 make/open  a connection 
+			    
 			   
 			      System.out.println("Connecting to database...");
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			   
-			   
-			 
-			   // Let us update age of the record with ID = 102;
-			      //int rows = stmt.executeUpdate();
-			      //System.out.println("Rows impacted : " + rows );
-
-			      // Let us select all the records and display them.
 			      String sql = "SELECT courseid, coursename , studentcount FROM courses";
 			      stmt = conn.prepareStatement(sql);
 			      ResultSet rs = stmt.executeQuery(sql);
@@ -144,10 +102,7 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			         System.out.println();
 			         
 			      }
-			      //STEP 6: Clean-up environment
-			     // rs.close();
 			      stmt.close();
-//			      conn.close();
 			   }catch(SQLException se){
 			      //Handle errors for JDBC
 				   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
@@ -171,22 +126,8 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 	 {
 		 try{
 			   
-			   // Step 3 Register Driver here and create connection 
-			   
-			   //Class.forName("com.mysql.cj.jdbc.Driver");
-
-			   // Step 4 make/open  a connection 
-			   
 			      System.out.println("Connecting to database...");
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			   
-			   
-			 
-			   // Let us update age of the record with ID = 102;
-			      //int rows = stmt.executeUpdate();
-			      //System.out.println("Rows impacted : " + rows );
 
-			      // Let us select all the records and display them.
 			      String sql = "SELECT * FROM student where studentid="+id;
 			      stmt = conn.prepareStatement(sql);
 			      ResultSet rs = stmt.executeQuery(sql);
@@ -232,15 +173,76 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			   System.out.println();
        //end main
 	 }
-	 public void semDAORegister(int studid,int sem,String doj,int cid,int c2id,int c3id,int c4id,int al1id,int al2id)
+	 public boolean isDAOVacant(int cid)
+	 {
+		 try
+		 {
+
+		      String qq = "select studentcount from courses where courseid="+cid;
+		      stmt = conn.prepareStatement(qq);
+		      ResultSet rr = stmt.executeQuery(qq);
+		      if(rr.next()) {
+		    	  int count = rr.getInt("studentcount");
+		    	  if(count>=10) {
+		    		  return false;
+		    	  }
+		      }
+		 }
+		 catch(SQLException se){
+		      //Handle errors for JDBC
+			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
+		      se.printStackTrace();
+		   }catch(Exception e){
+		      //Handle errors for Class.forName
+			   System.out.println("Exception"+e.getLocalizedMessage());
+		      e.printStackTrace();
+		   }finally{
+		      //finally block used to close resources
+		      try{
+		         if(stmt!=null)
+		            stmt.close();
+		      }catch(SQLException se2){
+		      }// nothing we can do
+		   }//end try
+		   return true;
+	 }
+	 public boolean isSemDAORegister(int sem,int id)
+	 {
+		 try
+		 {
+
+		      String qq = "select * from semesterregisteration where semester="+sem+" and studentid="+id;
+		      stmt = conn.prepareStatement(qq);
+		      ResultSet rr = stmt.executeQuery(qq);
+		      if(rr.next()) {
+		    	  return true;
+		      }
+		 }
+		 catch(SQLException se){
+		      //Handle errors for JDBC
+			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
+		      se.printStackTrace();
+		   }catch(Exception e){
+		      //Handle errors for Class.forName
+			   System.out.println("Exception"+e.getLocalizedMessage());
+		      e.printStackTrace();
+		   }finally{
+		      //finally block used to close resources
+		      try{
+		         if(stmt!=null)
+		            stmt.close();
+		      }catch(SQLException se2){
+		      }// nothing we can do
+		   }//end try
+		   return false;
+	 }
+	 public void semDAORegister(int studid,int sem,String doj,int cid[])
 	 {
 		 System.out.println("Connecting to database...");
 			try{
 				   
 //			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
 				  
-			
-			   
 			      String q = "insert into semesterregisteration values(?,?,?)";			  
 			      stmt = conn.prepareStatement(q);
 			      stmt.setInt(1,studid);
@@ -249,60 +251,20 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			      stmt.executeUpdate();
 			      System.out.println("Registered to Semester - " + sem);
 			      
-			      String sql = "insert into registeredcourse values(?,?,?,?,?)";
-			      stmt = conn.prepareStatement(sql);
-			      stmt.setInt(1,cid);
-			      stmt.setInt(2, sem);
-			      stmt.setInt(3, studid);
-			      stmt.setString(4,"NA");
-			      stmt.setInt(5, 0);
-			      stmt.executeUpdate();
-			      
-			      sql = "insert into registeredcourse values(?,?,?,?,?)";
-			      stmt = conn.prepareStatement(sql);
-			      stmt.setInt(1,c2id);
-			      stmt.setInt(2, sem);
-			      stmt.setInt(3, studid);
-			      stmt.setString(4,"NA");
-			      stmt.setInt(5, 0);
-			      stmt.executeUpdate();
-			      
-			      sql = "insert into registeredcourse values(?,?,?,?,?)";
-			      stmt = conn.prepareStatement(sql);
-			      stmt.setInt(1,c3id);
-			      stmt.setInt(2, sem);
-			      stmt.setInt(3, studid);
-			      stmt.setString(4,"NA");
-			      stmt.setInt(5, 0);
-			      stmt.executeUpdate();
-			      
-			      sql = "insert into registeredcourse values(?,?,?,?,?)";
-			      stmt = conn.prepareStatement(sql);
-			      stmt.setInt(1,c4id);
-			      stmt.setInt(2, sem);
-			      stmt.setInt(3, studid);
-			      stmt.setString(4,"NA");
-			      stmt.setInt(5, 0);
-			      stmt.executeUpdate();
-			      
-			      sql = "insert into registeredcourse values(?,?,?,?,?)";
-			      stmt = conn.prepareStatement(sql);
-			      stmt.setInt(1,al1id);
-			      stmt.setInt(2, sem);
-			      stmt.setInt(3, studid);
-			      stmt.setString(4,"NA");
-			      stmt.setInt(5, 0);
-			      stmt.executeUpdate();
-			      
-			      sql = "insert into registeredcourse values(?,?,?,?,?)";
-			      stmt = conn.prepareStatement(sql);
-			      stmt.setInt(1,al2id);
-			      stmt.setInt(2, sem);
-			      stmt.setInt(3, studid);
-			      stmt.setString(4,"NA");
-			      stmt.setInt(5, 0);
-			      stmt.executeUpdate();
-			      
+			      for(int i=0;i<6;i++)
+			      {
+			    	  String sql = "insert into registeredcourse values(?,?,?,?,?)";
+				      stmt = conn.prepareStatement(sql);
+				      stmt.setInt(1,cid[i]);
+				      stmt.setInt(2, sem);
+				      stmt.setInt(3, studid);
+				      stmt.setString(4,"NA");
+				      stmt.setInt(5, 0);
+				      stmt.executeUpdate();
+				      String query1 = "update courses set studentcount = studentcount+1 where courseid="+cid[i];
+				      stmt = conn.prepareStatement(query1);
+				      stmt.executeUpdate(query1);
+			      }    
 			      System.out.println("Registration for Course is Successful");
 			      stmt.close();
 //			      conn.close();
@@ -704,7 +666,7 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			      }
 			        
 			      		   
-			      System.out.println("Fee Paid Succesfully! Have a Nice Day!"); 
+			      System.out.println("Fee Paid Succesfully! Contact admin for approval"); 
 			      
 			      stmt.close();
 			      stmt3.close();
@@ -752,7 +714,10 @@ public void payDAOFeeOnline(int studid,int sem,int pay_choice,int amt,String car
 	      stmt.setString(3, modePay);
 	      stmt.setInt(4, amt);
 	      stmt.executeUpdate();
-	      String sql2 = "SELECT coursecode,studentid from registeredcourse where feepaid=1";
+	      
+	      
+	      
+	      String sql2 = "SELECT coursecode,studentid from registeredcourse where feepaid=1 and semester="+sem+" and studentid="+studid;
 	      stmt2 = conn.prepareStatement(sql2);
 	      ResultSet rs = stmt2.executeQuery(sql2);
 	      while(rs.next()) {
@@ -771,6 +736,8 @@ public void payDAOFeeOnline(int studid,int sem,int pay_choice,int amt,String car
 	    	  stmt3.executeUpdate();
 	    	  
 	      }
+	      
+	      
 	      sql1 = "SELECT paymentid FROM payment where studentid="+studid+" AND semester="+sem;
 	      stmt = conn.prepareStatement(sql1);
 	      rs = stmt.executeQuery(sql1);
