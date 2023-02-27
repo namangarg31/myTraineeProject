@@ -3,8 +3,10 @@
  */
 package com.signify.client;
 
+import java.util.List;
 import java.util.Scanner;
 
+import com.signify.bean.Student;
 import com.signify.service.ProfessorInterface;
 import com.signify.service.ProfessorService;
 
@@ -33,9 +35,29 @@ public class CRSProfessorMenu {
 			 {
 				 switch(choice)
 				 {
-				   case 1:  pi.viewEnrolledStudents(ID);
+				   case 1:  List<Student>students = pi.viewEnrolledStudents(ID);
+				            System.out.printf("---------------------------------------------------------------------------------------------%n");
+				            System.out.printf("                                      ENROLLED STUDENTS                                      %n");
+				            System.out.printf("---------------------------------------------------------------------------------------------%n");
+				            System.out.printf("| %-20s | %-20s | %20s | %20s |", "STUDENTID", "STUDENTNAME", "STUDENTBRANCH","STUDENTBATCH");
+				            System.out.println();
+				            boolean flag = true;
+				            for(Student student:students)
+				            {
+				            	flag = false;
+				            	int studentid = student.getUserId();
+				            	String studentname = student.getName();
+				            	String studentbranch = student.getBranch();
+				            	int studentbatch = student.getBatch();
+				            	System.out.printf("| %-20s | %-20s | %20s | %20d |%n",studentid,studentname,studentbranch,studentbatch);
+				            }
+				            if(flag)
+				            {
+				            	System.out.printf("--------------------------------------NO STUDENTS HAVE ENROLLED YET--------------------------------%n");	
+				            }
+				            System.out.printf("---------------------------------------------------------------------------------------------%n");
 		                    break;
-				   case 2:  pi.displayStudents(ID);
+				   case 2:  
 					        System.out.println("Enter Student ID you want to grade for:");
 			                int idd = sc.nextInt();
 			                System.out.println("Enter grade you want to assign:");

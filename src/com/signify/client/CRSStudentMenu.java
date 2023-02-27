@@ -3,13 +3,16 @@
  */
 package com.signify.client;
 
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
 
-
+import com.signify.bean.Course;
+import com.signify.exception.CourseNotFoundException;
 import com.signify.service.StudentInterface;
 import com.signify.service.StudentService;
 import com.signify.service.UserService;
@@ -53,8 +56,24 @@ public class CRSStudentMenu {
 				            }
 				            else
 				            {
+				       
 				            	String doj = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-					            student.viewCatalog();
+					            List<Course>courses = student.viewCatalog();
+					            System.out.printf("---------------------------------------------------------------------------------------------%n");
+							    System.out.printf("                                        COURSE CATALOG                                      %n");
+							    System.out.printf("---------------------------------------------------------------------------------------------%n");
+							    System.out.printf("| %-20s | %-20s | %20s | %20s |", "COURSEID", "COURSENAME", "STUDENTCOUNT","PROFESSORID");
+							    System.out.println();
+							    for(Course course:courses)
+						    	  {
+						    		  int courseid = course.getCourseId();
+						    		  String coursename = course.getCourseName();
+						    		  int studentcount = course.getStudentCount();
+						    		  int professorid = course.getProfessorId();
+						    		  System.out.printf("| %-20s | %-20s | %20d | %20d |%n",courseid,coursename,studentcount,professorid);
+						    		  
+						    	  }
+							      System.out.printf("---------------------------------------------------------------------------------------------%n");
 					            int[] courseid = new int[6];
 					            for(int i=1;i<=4;i++)
 					            {
@@ -93,19 +112,63 @@ public class CRSStudentMenu {
 					            	}
 					            }	
 					            student.semReg(ID, sem, doj, courseid);
+					            System.out.println("Registered to Semester - " + sem);
+					            System.out.println("Registration for Course is Successful");
 				            }
 				            break;
-				   case 2:  student.viewCatalog();  
+				   case 2:  List<Course>courses = student.viewCatalog();
+						    System.out.printf("---------------------------------------------------------------------------------------------%n");
+						    System.out.printf("                                        COURSE CATALOG                                      %n");
+						    System.out.printf("---------------------------------------------------------------------------------------------%n");
+						    System.out.printf("| %-20s | %-20s | %20s | %20s |", "COURSEID", "COURSENAME", "STUDENTCOUNT","PROFESSORID");
+						    System.out.println();
+						    for(Course course:courses)
+					    	  {
+					    		  int courseid = course.getCourseId();
+					    		  String coursename = course.getCourseName();
+					    		  int studentcount = course.getStudentCount();
+					    		  int professorid = course.getProfessorId();
+					    		  System.out.printf("| %-20s | %-20s | %20d | %20d |%n",courseid,coursename,studentcount,professorid);
+					    		  
+					    	  }
+						    System.out.printf("---------------------------------------------------------------------------------------------%n");
 		                    System.out.println("Enter courseID to add :");
 		                    int cid = sc.nextInt();
 					        student.addCourse(ID,cid);
 				            break;
-				   case 3:  student.myCatalog(ID);
+				   case 3:  System.out.printf("-----------------------------------------------------------------------------%n");
+				            System.out.printf("                             MY COURSE CATALOG                               %n");
+				            System.out.printf("-----------------------------------------------------------------------------%n");
+				            System.out.printf("| %-20s | %-20s | %-20s |", "COURSECODE", "COURSENAME","COURSE FEE");
+				            System.out.println();
+					        courses = student.myCatalog(ID);
+					        for(Course course : courses)
+				    	    {
+				    		  int courseid = course.getCourseId();
+				    		  String coursename = course.getCourseName();
+				    		  int fee = course.getCourseFee();
+				    		  System.out.printf("| %-20d | %-20s | %-20d |%n",courseid,coursename,fee);
+				    		  
+				    	    }
+					        System.out.printf("-----------------------------------------------------------------------------%n");			      
 			                System.out.println("Enter courseID to drop :");
 			                cid = sc.nextInt();
 						    student.dropCourse(ID,cid);
 					        break;
-				   case 4:  student.myCatalog(ID);
+				   case 4:  System.out.printf("-----------------------------------------------------------------------------%n");
+				            System.out.printf("                            MY COURSE CATALOG                                %n");
+				            System.out.printf("-----------------------------------------------------------------------------%n");
+				            System.out.printf("| %-20s | %-20s | %-20s |", "COURSECODE", "COURSENAME","COURSE FEE");
+				            System.out.println();
+					        courses = student.myCatalog(ID);
+					        for(Course course : courses)
+				    	    {
+				    		  int courseid = course.getCourseId();
+				    		  String coursename = course.getCourseName();
+				    		  int fee = course.getCourseFee();
+				    		  System.out.printf("| %-20d | %-20s | %-20d |%n",courseid,coursename,fee);
+				    	    }
+					        System.out.printf("------------------------------------------------------------------------------%n");			      
 	                        break;
 				   case 5:  System.out.println("Enter which semester you want to pay for : ");
 				            int semm = sc.nextInt();
@@ -115,7 +178,23 @@ public class CRSStudentMenu {
 				            }
 				            System.out.println("Fees to be paid for semester "+semm+"");
 				            int total_fees[] = {0};
-			            	student.feeCatalog(ID, semm,total_fees);
+				            System.out.printf("--------------------------------------------------------------------------------------------%n");
+						    System.out.printf("                                    MY COURSE CATALOG                                       %n");
+						    System.out.printf("--------------------------------------------------------------------------------------------%n");
+						    System.out.printf("| %-20s | %-20s | %-20s | %-20s |", "COURSECODE", "COURSENAME", "SEMESTER","FEE AMOUNT");
+						    System.out.println();
+			            	courses = student.feeCatalog(ID, semm,total_fees);
+			            	for(Course course:courses)
+			            	{
+			            		int courseid = course.getCourseId();
+					    		String coursename = course.getCourseName();
+					    		int fee = course.getCourseFee();
+					    		System.out.printf("| %-20d | %-20s | %-20d | %-20d |%n",courseid,coursename,semm,fee);
+			            	}
+			            	System.out.printf("--------------------------------------------------------------------------------------------%n");
+						    System.out.printf("| %-66s | %-20s |%n","Fees to be Paid:",total_fees[0]);
+						    System.out.printf("--------------------------------------------------------------------------------------------%n");
+						      
 			            	System.out.println("Choose how you want to pay the fees");
 			            	System.out.println("1.Online 2.Offline");
 			            	int pay_choice = sc.nextInt();
@@ -147,6 +226,22 @@ public class CRSStudentMenu {
 			            	    	System.out.println("Enter expiry date : ");
 			            	    	String expiry = sc.next();
 			            	    	student.payFeeOnline(ID,semm,pay_choice,amount,cardType,bankName,cardNumber,cardName,cvv,expiry);
+			            	    	System.out.println("Fee Paid Succesfully! Find your fee receipt below");
+			            		      System.out.println();
+			            		      System.out.println("-----------------------------------------------");
+			            		      System.out.println("|                   FEE RECEIPT               |");
+			            		      System.out.println("-----------------------------------------------");
+			            		      System.out.printf("| %-30s | %-10s |%n","NAME",cardName);
+			            		      System.out.println("-----------------------------------------------");
+			            		      System.out.printf("| %-30s | %-10s |%n","CARD TYPE",cardType);
+			            		      System.out.println("-----------------------------------------------");
+			            		      System.out.printf("| %-30s | %-10s |%n","BANK NAME",bankName);
+			            		      System.out.println("-----------------------------------------------");
+			            		      System.out.printf("| %-30s | %-10s |%n","SEMESTER",semm);
+			            		      System.out.println("-----------------------------------------------");
+			            		      System.out.printf("| %-30s | %-10s |%n","AMOUNT PAID",amount);
+			            		      System.out.println("-----------------------------------------------");
+			            		      System.out.println();
 			            	    	break;
 			            	    case 2:
 			            	    	System.out.println("WELCOME TO OFFLINE MODE OF PAYMENT");
@@ -160,6 +255,7 @@ public class CRSStudentMenu {
 			            	    		amount = sc.nextInt();
 			            	    	}
 			            	    	student.payFee(ID,semm,pay_choice,amountt);
+			            	    	System.out.println("Fee Paid Succesfully! Contact admin for approval"); 
 			            	    	break;
 			            	    default:
 			            	    	System.out.println("Invalid selection");

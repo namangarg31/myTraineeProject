@@ -8,7 +8,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.signify.bean.Student;
+import com.signify.exception.CourseNotAssignedException;
+import com.signify.exception.FeePendingException;
+import com.signify.exception.GradeAlreadyAddedException;
+import com.signify.exception.NotTeachingExcetion;
 import com.signify.utils.DBUtils;
 
 /**
@@ -24,17 +31,17 @@ public class ProfessorDAOImplementation implements ProfessorDAOInterface{
 	Connection conn = DBUtils.getConnection();
 	PreparedStatement stmt = null;
 	PreparedStatement stmt2 = null;
-	public void viewDAOEnrolledStudents(int id)
+	public List<Student> viewDAOEnrolledStudents(int id) throws CourseNotAssignedException
 	{
+		List<Student>students = new ArrayList<Student>();
 		 try
 		 {
-			 System.out.println("Connecting to database...");
-//		     conn = DriverManager.getConnection(DB_URL,USER,PASS);
+			
 		     String sql = "Select courseid from courses where Professorid="+id+"";
 		     stmt = conn.prepareStatement(sql);
 		     ResultSet rs = stmt.executeQuery(sql);
 		     if(!rs.next()) {
-		    	  System.out.println("No courses assigned to you yet!");
+		    	  throw new CourseNotAssignedException();
 		     }
 		     else
 		     {
@@ -43,124 +50,34 @@ public class ProfessorDAOImplementation implements ProfessorDAOInterface{
 			     sql = "SELECT s.studentid,s.studentname,s.studentbranch,s.studentbatch FROM registeredcourse as r,student as s WHERE r.studentid = s.studentid AND r.courseCode="+course_id+"";
 			     stmt = conn.prepareStatement(sql);
 			     rs = stmt.executeQuery(sql);
-			     System.out.printf("---------------------------------------------------------------------------------------------%n");
-			     System.out.printf("                                      ENROLLED STUDENTS                                      %n");
-			     System.out.printf("---------------------------------------------------------------------------------------------%n");
-			     System.out.printf("| %-20s | %-20s | %20s | %20s |", "STUDENTID", "STUDENTNAME", "STUDENTBRANCH","STUDENTBATCH");
-			     System.out.println();
 			     while(rs.next())
 		    	 {
-		    		  int courseid = rs.getInt("studentid");
+		    		  int studentid = rs.getInt("studentid");
 		    		  String studentname = rs.getString("studentname");
 		    		  String studentbranch = rs.getString("studentbranch");
 		    		  int studentbatch = rs.getInt("studentbatch");
-		    		  System.out.printf("| %-20s | %-20s | %20s | %20d |%n",courseid,studentname,studentbranch,studentbatch);
-		    		  
+		    		  Student obj = new Student();
+		    		  obj.setUserId(studentid);
+		    		  obj.setName(studentname);
+		    		  obj.setBranch(studentbranch);
+		    		  obj.setBatch(studentbatch);
+		    		  students.add(obj);  
 		    	 }
-			     System.out.printf("---------------------------------------------------------------------------------------------%n");
 		     }
-		     stmt.close();
-//		     conn.close();
 		 }
 		 catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
 		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
 		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
 		   }
+		 return students;
 	}
 	
-	public void displayDAOStudents(int proff_id)
+	public void addDAOgrades(int proff_id,int student_id,String grade)throws CourseNotAssignedException,FeePendingException,NotTeachingExcetion
 	{
 		try
 		{
-			System.out.println("Connecting to database...");
-//			conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			   
-		    String sql = "SELECT courseid,coursename FROM courses where Professorid="+proff_id;
-		    stmt = conn.prepareStatement(sql);
-		    ResultSet rs = stmt.executeQuery(sql);
-		    int cid = -1;
-		    String cname = "";
-		    if(rs.next())
-		    {
-		    	cid = rs.getInt("courseid");
-		    	cname = rs.getString("coursename");
-		    	cname = cname.toUpperCase();
-		    }
-		    if(cid==-1)
-		    {
-		    	System.out.println("Currently you are not teaching any course...");
-		    }
-		    else
-		    {
-		    	sql = "SELECT studentid from registeredcourse where coursecode="+cid;
-		    	stmt = conn.prepareStatement(sql);
-		    	rs = stmt.executeQuery(sql);
-		    	boolean flag = true;
-		    	System.out.printf("---------------------------------------------------------------------------------------------%n");
-			    System.out.printf("                           STUDENTS ENROLLED FOR "+cname+"                                   %n");
-			    System.out.printf("---------------------------------------------------------------------------------------------%n");
-			    System.out.printf("| %-20s | %-20s | %20s | %20s |", "STUDENTID", "STUDENTNAME", "STUDENTBRANCH","STUDENTBATCH");
-			    System.out.println();
-		    	while(rs.next())
-		    	{
-		    		flag = false;
-		    		int sid = rs.getInt("studentid");
-		    		String sql2 = "SELECT studentname, studentbranch, studentbatch from student where studentid="+sid;
-		    		stmt2 = conn.prepareStatement(sql2);
-  			        ResultSet rs2 = stmt2.executeQuery(sql2);
-  			        if(rs2.next())
-  			        {
-  			        	String name = rs2.getString("studentname");
-  			        	String branch = rs2.getString("studentbranch");
-  			        	int batch = rs2.getInt("studentbatch");
-  			        	System.out.printf("| %-20d | %-20s | %20s | %20d |%n",sid,name,branch,batch);	
-  			        }
-		    	}
-		    	if(flag)
-		    	{
-		    		System.out.println("You are not teaching this student , grade can't be assigned.....");
-		    	}
-		    	System.out.printf("---------------------------------------------------------------------------------------------%n");
-		   }
-		}
-		catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
-		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		 }
-		
-	}
-	
-	public void addDAOgrades(int proff_id,int student_id,String grade)
-	{
-		try
-		{
-			System.out.println("Connecting to database...");
-//			conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			   
+			
 		    String sql = "SELECT courseid FROM courses	where Professorid="+proff_id;
 		    stmt = conn.prepareStatement(sql);
 		    ResultSet rs = stmt.executeQuery(sql);
@@ -171,7 +88,7 @@ public class ProfessorDAOImplementation implements ProfessorDAOInterface{
 		    }
 		    if(cid==-1)
 		    {
-		    	System.out.println("Currently you are not teaching any course...");
+		    	throw new CourseNotAssignedException();
 		    }
 		    else
 		    {
@@ -194,42 +111,28 @@ public class ProfessorDAOImplementation implements ProfessorDAOInterface{
                         	rs1.next();
                         	String grade1 = rs1.getString("grade");
                         	if(grade1!=null) {
-                        		System.out.println("Grade Already Added!!");
-                        		return;
+                        		throw new GradeAlreadyAddedException();
                         	}
           			        sql = "UPDATE grade set grade='"+grade+"' where studid="+student_id+" and courseid="+cid;
           			        stmt = conn.prepareStatement(sql);
-          			        stmt.executeUpdate(sql);
-          			        System.out.println("Grade Successfully added......"); 	
+          			        stmt.executeUpdate(sql);	
                         }
                         else
                         {
-                        	System.out.println("Fee for the student is pending you can't assign grade.....");
+                        	throw new FeePendingException();
                         }
 		    		}
 		    	}
 		    	if(flag)
 		    	{
-		    		System.out.println("You are not teaching this student , grade can't be assigned.....");
+		    		throw new NotTeachingExcetion();
 		    	}
 		    }
 		}
 		catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
 		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		      
+		      e.printStackTrace();     
 		 }
    }
 }

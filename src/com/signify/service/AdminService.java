@@ -3,11 +3,15 @@
  */
 package com.signify.service;
 
+import java.sql.ResultSet;
 import java.util.*;
 
 import com.signify.bean.*;
 import com.signify.dao.AdminDAOImplementation;
 import com.signify.dao.AdminDAOInterface;
+import com.signify.exception.CourseNotFoundException;
+import com.signify.exception.ProfessorNotFoundException;
+import com.signify.exception.StudentNotFoundForApprovalException;
 
 /**
  * @author asus
@@ -16,40 +20,69 @@ import com.signify.dao.AdminDAOInterface;
 public class AdminService implements AdminInterface{
 	
 	AdminDAOInterface ad = new AdminDAOImplementation();
-	public boolean viewUnapproveStudents()
+	public List<Student> viewUnapproveStudents()
 	{
 		return ad.viewDAOUnapprove();
 	}
-	public void approveStudent(int id) {
+	public boolean approveStudent(int id) {
 	
-		ad.approveDAOStudent(id); 
+		try
+		{
+			ad.approveDAOStudent(id); 
+			return true;
+		}
+		catch(StudentNotFoundForApprovalException se)
+		{
+			return false;
+		}
 	}
-	public void addAdmin(String name,String pass) 
+	public int addAdmin(String name,String pass) 
 	{
-		ad.addDAOAdmin(name,pass);
+		return ad.addDAOAdmin(name,pass);
 	}
-	public void viewInfo(int id,int val)
+	public boolean addCourse(String coursename,int profid)
 	{
-		ad.editDAOInfo(id,val);
+		try
+		{
+			ad.addDAOCourse(coursename,profid);
+			return true;
+		}
+		catch(ProfessorNotFoundException pe)
+		{
+			return false;
+		}
 	}
-	public void addCourse(String coursename,int profid)
+	public boolean removeCourse(String coursename)
 	{
-		ad.addDAOCourse(coursename,profid);
+		try
+		{
+			ad.removeDAOCourse(coursename);
+			return true;
+		}
+		catch(CourseNotFoundException ce)
+		{
+			return false;
+		}
 	}
-	public void removeCourse(String coursename)
+	public List<Course> viewCourses()
 	{
-		ad.removeDAOCourse(coursename);
+		List<Course>courses = null; 
+		try
+		{
+			courses = ad.viewDAOCourses();
+		}
+		catch(CourseNotFoundException ce)
+		{
+			
+		}
+		return courses;
 	}
-	public void viewCourses()
+	public int addProfessor(String name,String pass,String depart,String des)
 	{
-		ad.viewDAOCourses();
+		return ad.addDAOProfessor(name,pass,depart,des);
 	}
-	public void addProfessor(String name,String pass,String depart,String des)
+	public List<GradeCard> generateReport(int studid)
 	{
-		ad.addDAOProfessor(name,pass,depart,des);
-	}
-	public void generateReport(int studid)
-	{
-		ad.generateDAOReport(studid);
+		return ad.generateDAOReport(studid);
 	}
 }

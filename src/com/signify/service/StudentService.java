@@ -12,10 +12,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.signify.bean.Course;
 import com.signify.bean.Student;
 import com.signify.bean.User;
 import com.signify.dao.StudentDAOImplementation;
 import com.signify.dao.StudentDAOInterface;
+import com.signify.exception.AlreadyRegisteredException;
+import com.signify.exception.CourseFilledException;
+import com.signify.exception.CourseNotFoundException;
+import com.signify.exception.NoSemesterRegisteration;
+import com.signify.exception.SixRegisteredCoursesException;
 
 /**
  * @author Naman
@@ -24,9 +30,9 @@ import com.signify.dao.StudentDAOInterface;
 public class StudentService implements StudentInterface {
 
 	StudentDAOInterface studentDao = new StudentDAOImplementation();
-	public void registerForStudent(String name,String password,String branch,int batch)
+	public int registerForStudent(String name,String password,String branch,int batch)
 	{
-		studentDao.registerDAOStudent(name,password,branch, batch);
+		return studentDao.registerDAOStudent(name,password,branch, batch);
 	}
 	public void viewGradeCard()
 	{
@@ -44,21 +50,58 @@ public class StudentService implements StudentInterface {
 	{
 		studentDao.semDAORegister(studid,sem,doj,cid);
 	}
-	public void viewCatalog()
+	public List<Course> viewCatalog()
 	{
-		studentDao.viewDAOCatalog();
+		List<Course>courses = new ArrayList<Course>();
+		try
+		{
+			courses = studentDao.viewDAOCatalog();
+		}
+		catch(CourseNotFoundException ce)
+		{
+			
+		}
+		return courses;
 	}
 	public void addCourse(int studid,int cid)
 	{
-		studentDao.addDAOCourse(studid,cid);
+		try
+		{
+			studentDao.addDAOCourse(studid,cid);
+		}
+		catch(CourseFilledException ce)
+		{
+			
+		}
+		catch(SixRegisteredCoursesException se)
+		{
+			
+		}
+		catch(AlreadyRegisteredException ae)
+		{
+			
+		}
+		catch(NoSemesterRegisteration ne)
+		{
+			
+		}
 	}
 	public void dropCourse(int studid,int cid)
 	{
 		studentDao.dropDAOCourse(studid,cid);
 	}
-	public void myCatalog(int studid)
+	public List<Course> myCatalog(int studid)
 	{
-		studentDao.myDAOCatalog(studid);
+		List<Course>courses = new ArrayList<Course>();  
+		try
+		{
+			courses = studentDao.myDAOCatalog(studid);
+		}
+		catch(CourseNotFoundException ce)
+		{
+			
+		}
+		return courses;
 	}
 	public boolean isPaid(int studid, int semester) {
 		if(studentDao.isDAOPaid(studid, semester)) {
@@ -66,8 +109,16 @@ public class StudentService implements StudentInterface {
 		}
 		return false;
 	}	
-	public void feeCatalog(int studid, int semester,int total_fees[]) {
-		studentDao.feeDAOCatalog(studid, semester,total_fees);
+	public List<Course> feeCatalog(int studid, int semester,int total_fees[]) {
+		List<Course>courses = new ArrayList<Course>();
+		try {
+			
+			courses = studentDao.feeDAOCatalog(studid, semester,total_fees);
+		} 
+		catch (CourseNotFoundException e) {
+			
+		}
+		return courses;
 	}
 	
 	public void payFeeOnline(int ID,int semm,int pay_choice,int amount,String cardType,String bankName,int cardNumber,String cardName,int cvv,String expiry) {

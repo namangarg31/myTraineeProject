@@ -3,6 +3,7 @@
  */
 package com.signify.service;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.Scanner;
 
@@ -29,38 +30,38 @@ public class UserService implements UserInterface{
 		 boolean result = false;
 		    try {
 		    	result = userDao.validate(userID,password,role);
+		    	if(result)
+		    	{
+		    		if(role.equals("admin"))
+					{
+					   System.out.println();	
+					   CRSAdminMenu ad = new CRSAdminMenu();
+					   ad.displayMenu(userID);
+					}
+					else if(role.equals("student"))
+					{
+						System.out.println();	
+						CRSStudentMenu st = new CRSStudentMenu();
+						st.displayMenu(userID);
+					}
+					else if(role.equals("professor"))
+					{
+						System.out.println();	
+						CRSProfessorMenu pro = new CRSProfessorMenu();
+						pro.displayMenu(userID);
+					}
+		    	}
 		    }
-		    catch(UserNotFoundException e) {
+		    catch(UserNotFoundException ex) {
 		    	
 		    }
-			if(result==true)
-			{
-				if(role.equals("admin"))
-				{
-				   System.out.println();	
-				   CRSAdminMenu ad = new CRSAdminMenu();
-				   ad.displayMenu(userID);
-				}
-				else if(role.equals("student"))
-				{
-					System.out.println();	
-					CRSStudentMenu st = new CRSStudentMenu();
-					st.displayMenu(userID);
-				}
-				else if(role.equals("professor"))
-				{
-					System.out.println();	
-					CRSProfessorMenu pro = new CRSProfessorMenu();
-					pro.displayMenu(userID);
-				}
-			}
-			else
-			{
-				System.out.println("");
-			}	
 		}
 	 public void updatePassword(int id,String oldpass,String newpass)
 	 {
-		 userDao.updateDAOPassword(id,oldpass,newpass); 
+		 try {
+			userDao.updateDAOPassword(id,oldpass,newpass);
+		} catch (UserNotFoundException e) {
+			e.printStackTrace();
+		}
 	 }
 }

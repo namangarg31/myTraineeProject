@@ -59,7 +59,10 @@ public class CRSApplicationMenu {
 		                    String branch = sc.next();
 		                    System.out.println("Enter batch : ");
 		                    int batch = sc.nextInt();
-			                student.registerForStudent(name,password,branch,batch);
+			                int studid = student.registerForStudent(name,password,branch,batch);
+			                System.out.println("Student is registered successfully.....");
+						    System.out.println("Your user id is : "+studid);
+						    System.out.println("Pending Approval, Contact Admin");
 		                    break;
 				   case 3:  System.out.println("Enter user ID : ");
 				            userID = sc.nextInt();

@@ -5,8 +5,16 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.signify.bean.Course;
 import com.signify.constants.SQLConstants;
+import com.signify.exception.AlreadyRegisteredException;
+import com.signify.exception.CourseFilledException;
+import com.signify.exception.CourseNotFoundException;
+import com.signify.exception.NoSemesterRegisteration;
+import com.signify.exception.SixRegisteredCoursesException;
 import com.signify.service.StudentInterface;
 import com.signify.utils.DBUtils;
 
@@ -20,9 +28,9 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 	 PreparedStatement stmt = null;
 	 PreparedStatement stmt2 = null;
 	 PreparedStatement stmt3 = null;
-	 public void registerDAOStudent(String name,String password,String branch,int batch)
+	 public int registerDAOStudent(String name,String password,String branch,int batch)
 	 {
-		   
+		   int studid = 0;   
 		   try{
 			   
 			   
@@ -39,7 +47,6 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			 
 			      stmt2 = conn.prepareStatement(sql2);
 			      ResultSet rs = stmt2.executeQuery(sql2);
-			      int studid = 0;
 			      while(rs.next()){
 			    	 studid = rs.getInt("id");
 			         
@@ -53,126 +60,14 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			      stmt3.setInt(4,batch);
 			      stmt3.setInt(5,0);
 			      stmt3.executeUpdate();
-			      System.out.println("Student is registered successfully.....");
-			      System.out.println("Your user id is : "+studid);
-			      System.out.println("Pending Approval, Contact Admin");
 			   }catch(SQLException se){
-			      //Handle errors for JDBC
-				   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 			      se.printStackTrace();
 			   }catch(Exception e){
-			      //Handle errors for Class.forName
-				   System.out.println("Exception"+e.getLocalizedMessage());
 			      e.printStackTrace();
-			   }finally{
-			      //finally block used to close resources
-			      try{
-			         if(stmt!=null)
-			            stmt.close();
-			      }catch(SQLException se2){
-			      }// nothing we can do
-			   }//end try
-			   System.out.println("");
-           //end main
+			   }
+		   return studid;
       }
-	 public void viewDAOCourses()
-	 {
-		    
-		  
-		   try{
-			    
-			   
-			      System.out.println("Connecting to database...");
-			      String sql = "SELECT courseid, coursename , studentcount FROM courses";
-			      stmt = conn.prepareStatement(sql);
-			      ResultSet rs = stmt.executeQuery(sql);
-
-			      //STEP 5: Extract data from result set
-			      System.out.println("AVAILABLE COURSES");
-			      System.out.println("-----------------");
-			      while(rs.next()){
-			         //Retrieve by column name
-			         int userid  = rs.getInt("courseid");
-			         String studentname = rs.getString("coursename");
-			         int studentcount = rs.getInt("studentcount");
-			         //Display values
-			         System.out.print("COURSE ID : " + userid);
-			         System.out.print(" | COURSE NAME : " + studentname);
-			         System.out.print(" | STUDENT COUNT : " + studentcount);
-			         System.out.println();
-			         
-			      }
-			      stmt.close();
-			   }catch(SQLException se){
-			      //Handle errors for JDBC
-				   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
-			      se.printStackTrace();
-			   }catch(Exception e){
-			      //Handle errors for Class.forName
-				   System.out.println("Exception"+e.getLocalizedMessage());
-			      e.printStackTrace();
-			   }finally{
-			      //finally block used to close resources
-			      try{
-			         if(stmt!=null)
-			            stmt.close();
-			      }catch(SQLException se2){
-			      }// nothing we can do
-			   }//end try
-			   System.out.println();
-         //end main
-	 }
-	 public void viewDAOInfo(int id)
-	 {
-		 try{
-			   
-			      System.out.println("Connecting to database...");
-
-			      String sql = "SELECT * FROM student where studentid="+id;
-			      stmt = conn.prepareStatement(sql);
-			      ResultSet rs = stmt.executeQuery(sql);
-
-			      //STEP 5: Extract data from result set
-			      System.out.println("STUDENT INFO");
-			      System.out.println("------------");
-			      while(rs.next()){
-			         //Retrieve by column name
-			         int userid  = rs.getInt("studentid");
-			         String studentname = rs.getString("studentname");
-			         String studentbranch = rs.getString("studentbranch");
-			         int studentbatch = rs.getInt("studentbatch");
-			         int studentid = rs.getInt("studentid");
-			         //Display values
-			         System.out.println("STUDENT ID : " + userid);
-			         System.out.println("STUDENT NAME : " + studentname);
-			         System.out.println("STUDENT BRANCH : " + studentbranch);
-			         System.out.println("STUDENT BATCH : " + studentbatch);
-			         System.out.println();
-			         
-			      }
-			      //STEP 6: Clean-up environment
-			     // rs.close();
-			      stmt.close();
-//			      conn.close();
-			   }catch(SQLException se){
-			      //Handle errors for JDBC
-				   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
-			      se.printStackTrace();
-			   }catch(Exception e){
-			      //Handle errors for Class.forName
-				   System.out.println("Exception"+e.getLocalizedMessage());
-			      e.printStackTrace();
-			   }finally{
-			      //finally block used to close resources
-			      try{
-			         if(stmt!=null)
-			            stmt.close();
-			      }catch(SQLException se2){
-			      }// nothing we can do
-			   }//end try
-			   System.out.println();
-       //end main
-	 }
+	
 	 public boolean isDAOVacant(int cid)
 	 {
 		 try
@@ -189,21 +84,8 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 		      }
 		 }
 		 catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
+		   }
 		   return true;
 	 }
 	 public boolean isSemDAORegister(int sem,int id)
@@ -219,38 +101,20 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 		      }
 		 }
 		 catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
+		   }
 		   return false;
 	 }
 	 public void semDAORegister(int studid,int sem,String doj,int cid[])
 	 {
-		 System.out.println("Connecting to database...");
 			try{
-				   
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
-				  
+				   				  
 			      String q = "insert into semesterregisteration values(?,?,?)";			  
 			      stmt = conn.prepareStatement(q);
 			      stmt.setInt(1,studid);
 			      stmt.setInt(2, sem);
 			      stmt.setString(3, doj);
-			      stmt.executeUpdate();
-			      System.out.println("Registered to Semester - " + sem);
-			      
+			      stmt.executeUpdate();   
 			      for(int i=0;i<6;i++)
 			      {
 			    	  String sql = "insert into registeredcourse values(?,?,?,?,?)";
@@ -265,46 +129,22 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 				      stmt = conn.prepareStatement(query1);
 				      stmt.executeUpdate(query1);
 			      }    
-			      System.out.println("Registration for Course is Successful");
-			      stmt.close();
-//			      conn.close();
-			      
+			      			      
 	     }
 		catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
-		   System.out.println();
+		   }
 		}
 		 
-	 public void viewDAOCatalog()
+	 public List<Course> viewDAOCatalog()throws CourseNotFoundException
 	 {
-		 System.out.println("Connecting to database...");
+		    List<Course>courses = new ArrayList<Course>();
 			try{
-				   
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
 			   
 			      String q = "select * from courses";
 			      stmt = conn.prepareStatement(q);
 			      ResultSet rs = stmt.executeQuery(q);
 			      boolean flag = true;
-			      System.out.printf("---------------------------------------------------------------------------------------------%n");
-			      System.out.printf("                                        COURSE CATALOG                                      %n");
-			      System.out.printf("---------------------------------------------------------------------------------------------%n");
-			      System.out.printf("| %-20s | %-20s | %20s | %20s |", "COURSEID", "COURSENAME", "STUDENTCOUNT","PROFESSORID");
-			      System.out.println();
 			      while(rs.next())
 		    	  {
 		    		  flag = false;
@@ -312,50 +152,36 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 		    		  String coursename = rs.getString("coursename");
 		    		  int studentcount = rs.getInt("studentcount");
 		    		  int professorid = rs.getInt("Professorid");
-		    		  System.out.printf("| %-20s | %-20s | %20d | %20d |%n",courseid,coursename,studentcount,professorid);
-		    		  
+		    		  Course obj = new Course();
+		    		  obj.setCourseId(courseid);
+		    		  obj.setCourseName(coursename);
+		    		  obj.setStudentCount(studentcount);
+		    		  obj.setProfessorId(professorid);
+		    		  courses.add(obj);
 		    	  }
 			      if(flag) {
-			    	  System.out.println("No such course exist...");
+			    	  throw new CourseNotFoundException();
 			      }
-			      System.out.printf("---------------------------------------------------------------------------------------------%n");
-			      stmt.close();
-//			      conn.close();
 			      
 	     }
 		catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
-		   System.out.println();
+		   }
+			return courses;
 		}
-	 public void addDAOCourse(int studid,int cid)
+	 public void addDAOCourse(int studid,int cid)throws CourseFilledException,SixRegisteredCoursesException,AlreadyRegisteredException,NoSemesterRegisteration
 	 {
-		 System.out.println("Connecting to database...");
 			try{
-				   
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			      
-			      
+				   			      
 			      String qq = "select studentcount from courses where courseid="+cid;
 			      stmt = conn.prepareStatement(qq);
 			      ResultSet rr = stmt.executeQuery(qq);
 			      if(rr.next()) {
 			    	  int count = rr.getInt("studentcount");
 			    	  if(count>=10) {
-			    		  System.out.println("This course is already filled, Please select another course.");
+			    		  throw new CourseFilledException();
+			    	  }
+			    	  if(count>=10) {
 			    		  return;
 			    	  }
 			      }
@@ -367,11 +193,15 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			      while(res.next()) {
 			    	  size++;
 			    	  if(size>=6) {
-			    		  System.out.println("Already Registered in "+size+" courses, not allowed to add more.");
+			    		  throw new SixRegisteredCoursesException();
+			    	  }
+			    	  if(size>=6) {
 			    		  return;
 			    	  }
 			    	  if(res.getInt("coursecode")==cid) {
-			    		  System.out.println("Already Registered in Course - "+cid);
+			    		  throw new AlreadyRegisteredException(cid);
+			    	  }
+			    	  if(res.getInt("coursecode")==cid) {
 			    		  return;
 			    	  }
 			      }
@@ -390,107 +220,61 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 				      stmt.setString(4,"NA");
 				      stmt.setInt(5,0);
 				      stmt.executeUpdate();
-				      System.out.println("Course Added Successfully\nPlease Pay Fee To Access Course");
-				      
 				      String query1 = "update courses set studentcount = studentcount+1 where courseid="+cid;
 				      stmt = conn.prepareStatement(query1);
 				      stmt.executeUpdate(query1);
 			      }
 			      else {
-			    	  System.out.println("FIRSTLY YOU NEED TO DO SEMESTER REGISTERATION!!!");
+			    	  throw new NoSemesterRegisteration();
 			      }
-			      
-			      
-			      
-			      stmt.close();
-//			      conn.close();
-			      
 	     }
 		catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
-		   System.out.println();
+		}
 	 }
-	 public void myDAOCatalog(int studid)
+	 public List<Course> myDAOCatalog(int studid)throws CourseNotFoundException
 	 {
-		 System.out.println("Connecting to database...");
+		    List<Course>courses = new ArrayList<Course>();
 			try{
-				   
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			      
 			      		      
 			      String q = "select * from registeredcourse where studentid="+studid;
 			      stmt = conn.prepareStatement(q);
 			      ResultSet rs = stmt.executeQuery(q);
 			      boolean flag = true;
-			      System.out.printf("--------------------------------------------------------------------------------------------%n");
-			      System.out.printf("                                    MY COURSE CATALOG                                       %n");
-			      System.out.printf("--------------------------------------------------------------------------------------------%n");
-			      System.out.printf("| %-20s | %-20s | %-20s | %-20s |", "COURSECODE", "COURSENAME", "SEMESTER","FEE STATUS");
-			      System.out.println();
 			      while(rs.next())
 		    	  {
 		    		  flag = false;
 		    		  int courseid = rs.getInt("coursecode");
 		    		  String sem = rs.getString("semester");
-		    		  int status = rs.getInt("feepaid");
+		    		  int fee = 0;
 		    		  String q1 = "select * from courses where courseid="+courseid;
 				      stmt2 = conn.prepareStatement(q1);
 				      ResultSet rs1 = stmt2.executeQuery(q1);
 				      String coursename = "";
 				      if(rs1.next()) {
 				    	  coursename = rs1.getString("coursename");
+				    	  fee = rs1.getInt("coursefee");
 				      }
-		    		  System.out.printf("| %-20s | %-20s | %-20s | %-20s |%n",courseid,coursename,sem,status);
+				      Course obj = new Course();
+				      obj.setCourseId(courseid);
+				      obj.setCourseName(coursename);
+				      obj.setCourseFee(fee);
+		    		  courses.add(obj);
 		    		  
 		    	  }
 			      if(flag) {
-			    	  System.out.println("No such course exist...");
+			    	  throw new CourseNotFoundException();
 			      }
-			      System.out.printf("--------------------------------------------------------------------------------------------%n");
-			      stmt.close();
-//			      conn.close();
-			      
 	     }
 		catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
-		   System.out.println(); 
+		   }
+		   return courses; 
 	 }
 	 public void dropDAOCourse(int studid,int cid)
 	 {
-		 System.out.println("Connecting to database...");
 			try{
 				   
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			      
-			      
 			   
 			      String q = "delete from registeredcourse where studentid="+studid+" and coursecode="+cid;
 			      stmt = conn.prepareStatement(q);
@@ -501,33 +285,14 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			      stmt = conn.prepareStatement(query);
 			      stmt.executeUpdate(query);
 			      
-			      
-			      stmt.close();
-//			      conn.close();
-			      
 	     }
 		catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
-		   System.out.println();
+		   }
 	 }
 	 public boolean isDAOPaid(int studid, int semester) {
 			try{
 				   
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
 			      String sql = "select * from registeredcourse where studentid="+studid+" and semester="+semester;
 			      stmt = conn.prepareStatement(sql);
 			      ResultSet rs = stmt.executeQuery(sql);
@@ -539,50 +304,25 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			    		  return false;
 			    	  }
 			      }
-			      stmt.close();
-//			      conn.close();
 			      
 			}
 		   catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
-		   System.out.println();
-			
+		   }	
 			return true;
 		}
 	 
-	 public void feeDAOCatalog(int studid,int sem,int total_fees[]) {
-//			System.out.println("View Fee DAO catalog");
-			// TODO Auto-generated method stub
-			System.out.println("Connecting to database...");
+	 public List<Course> feeDAOCatalog(int studid,int sem,int total_fees[])throws CourseNotFoundException
+	 {
+		    List<Course>courses = new ArrayList<Course>(); 
 			try{
-				   
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			      
+				    
 			      int totalFee = 0;
 			      
 			      String q = "select * from registeredcourse where studentid="+studid + " and semester="+sem + " and feepaid=0";
 			      stmt = conn.prepareStatement(q);
 			      ResultSet rs = stmt.executeQuery(q);
 			      boolean flag = true;
-			      System.out.printf("--------------------------------------------------------------------------------------------%n");
-			      System.out.printf("                                    MY COURSE CATALOG                                       %n");
-			      System.out.printf("--------------------------------------------------------------------------------------------%n");
-			      System.out.printf("| %-20s | %-20s | %-20s | %-20s |", "COURSECODE", "COURSENAME", "SEMESTER","FEE AMOUNT");
-			      System.out.println();
 			      while(rs.next())
 		    	  {
 		    		  flag = false;
@@ -597,45 +337,26 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 				    	  fees = rs1.getInt("coursefee");
 				    	  totalFee+=fees;
 				      }
-		    		  System.out.printf("| %-20s | %-20s | %-20s | %-20s |%n",courseid,coursename,sem,fees);
-		    		  
+				      Course obj = new Course();
+				      obj.setCourseId(courseid);
+				      obj.setCourseName(coursename);
+				      obj.setCourseFee(fees);
+				      courses.add(obj);
 		    	  }
 			      if(flag) {
-			    	  System.out.println("No such course exist...");
+			    	  throw new CourseNotFoundException();
 			      }
-			      System.out.printf("--------------------------------------------------------------------------------------------%n");
-			      
-			      System.out.printf("| %-66s | %-20s |%n","Fees to be Paid:",totalFee);
-			      System.out.printf("--------------------------------------------------------------------------------------------%n");
-			      
-			      stmt.close();
-//			      conn.close();
 			      total_fees[0] = totalFee;
 			      
 	     }
 		catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
-		   System.out.println();
-			
+		   }
+		   return courses;
 		}
 	 public void payDAOFee(int studid, int sem, int mode, int amt) {
 			try{
 				   
-//			      conn = DriverManager.getConnection(DB_URL,USER,PASS);
 			      
 			      String modePay = mode==1?"online":"offline";
 			      boolean flag = false;
@@ -660,43 +381,16 @@ public class StudentDAOImplementation implements StudentDAOInterface{
 			    	  stmt3.setInt(1, rs.getInt("studentid"));
 			    	  stmt3.setInt(2, rs.getInt("courseCode"));
 			    	  stmt3.executeUpdate();
-			      }
-			      if(flag==false) {
-			    	  System.out.println("No student have paid the fees yet");
-			      }
-			        
-			      		   
-			      System.out.println("Fee Paid Succesfully! Contact admin for approval"); 
-			      
-			      stmt.close();
-			      stmt3.close();
-//			      conn.close();
-			      
+			      }      
 			}
 		catch(SQLException se){
-		      //Handle errors for JDBC
-			   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
 		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-			   System.out.println("Exception"+e.getLocalizedMessage());
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		   }//end try
-		   System.out.println();
-			
+		   }
 		}
 public void payDAOFeeOnline(int studid,int sem,int pay_choice,int amt,String cardType,String bankName,int cardNumber,String cardName,int cvv,String expiry)
 {
 	try{
 		   
-//	      conn = DriverManager.getConnection(DB_URL,USER,PASS);
 	      
 	      String modePay = "online";
 	      boolean flag = false;
@@ -755,44 +449,12 @@ public void payDAOFeeOnline(int studid,int sem,int pay_choice,int amt,String car
 	    	  stmt2.setInt(7,payid);
 	    	  stmt2.executeUpdate();
 	      }
-	      
-	      System.out.println("Fee Paid Succesfully! Find your fee receipt below");
-	      System.out.println();
-	      System.out.println("-----------------------------------------------");
-	      System.out.println("|                   FEE RECEIPT               |");
-	      System.out.println("-----------------------------------------------");
-	      System.out.printf("| %-30s | %-10s |%n","NAME",cardName);
-	      System.out.println("-----------------------------------------------");
-	      System.out.printf("| %-30s | %-10s |%n","CARD TYPE",cardType);
-	      System.out.println("-----------------------------------------------");
-	      System.out.printf("| %-30s | %-10s |%n","BANK NAME",bankName);
-	      System.out.println("-----------------------------------------------");
-	      System.out.printf("| %-30s | %-10s |%n","SEMESTER",sem);
-	      System.out.println("-----------------------------------------------");
-	      System.out.printf("| %-30s | %-10s |%n","AMOUNT PAID",amt);
-	      System.out.println("-----------------------------------------------");
-	      System.out.println();
-	      stmt.close();
-//	      conn.close();
+	
 	      
 	}
-catch(SQLException se){
-    //Handle errors for JDBC
-	   System.out.println("SQLException"+ se.getErrorCode()+"-->"+se.getCause());
-    se.printStackTrace();
- }catch(Exception e){
-    //Handle errors for Class.forName
-	   System.out.println("Exception"+e.getLocalizedMessage());
-    e.printStackTrace();
- }finally{
-    //finally block used to close resources
-    try{
-       if(stmt!=null)
-          stmt.close();
-    }catch(SQLException se2){
-    }// nothing we can do
- }//end try
- System.out.println();
-}
+  catch(SQLException se){
+     se.printStackTrace();
+   }
+  }
 }
 

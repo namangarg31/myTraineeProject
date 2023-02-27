@@ -1,16 +1,18 @@
 package com.signify.service;
 
+import java.sql.ResultSet;
+import java.util.List;
+
 import com.signify.bean.*;
 
 public interface AdminInterface {
 
-	public void approveStudent(int id);
-	public void viewInfo(int id,int val);
-	public boolean viewUnapproveStudents();
-	public void addCourse(String coursename,int profid);
-	public void removeCourse(String coursename);
-	public void viewCourses();
-	public void addAdmin(String name,String pass);
-	public void addProfessor(String name,String pass,String depart,String des);
-	public void generateReport(int studid);
+	public boolean approveStudent(int id);
+	public List<Student> viewUnapproveStudents();
+	public boolean addCourse(String coursename,int profid);
+	public boolean removeCourse(String coursename);
+	public List<Course> viewCourses();
+	public int addAdmin(String name,String pass);
+	public int addProfessor(String name,String pass,String depart,String des);
+	public List<GradeCard> generateReport(int studid);
 }
